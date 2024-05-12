@@ -72,6 +72,8 @@ void uf2_flash_flush(WriteState *state)
   {
     logPrintf("uf2_flash_flush() fail\n");
   }   
+
+  delay(500);
 }
 
 void uf2_flash_write(WriteState *state, uint32_t addr, void const *data, uint32_t len)

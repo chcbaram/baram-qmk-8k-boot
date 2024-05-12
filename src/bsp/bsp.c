@@ -1,6 +1,5 @@
 #include "bsp.h"
-#include "hw_def.h"
-
+#include "usb.h"
 
 static void SystemClock_Config(void);
 

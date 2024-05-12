@@ -6,7 +6,7 @@
 #include "bsp.h"
 
 
-#define _DEF_FIRMWATRE_VERSION    "V240511R1"
+#define _DEF_FIRMWATRE_VERSION    "V240512R1"
 #define _DEF_BOARD_NAME           "BARAM-QMK-8K-BOOT"
 
 
