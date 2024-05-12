@@ -42,10 +42,12 @@ static bool ejected = false;
 "VER  : " _DEF_FIRMWATRE_VERSION "\r\n" 
 
 
+static uint8_t readme_txt[512] = {0, };
+
 
 enum
 {
-  DISK_BLOCK_NUM  = 32, 
+  DISK_BLOCK_NUM  = 17, 
   DISK_BLOCK_SIZE = 512
 };
 
@@ -126,11 +128,12 @@ const uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE] =
       // second entry is readme file
       'R' , 'E' , 'A' , 'D' , 'M' , 'E' , ' ' , ' ' , 'T' , 'X' , 'T' , 0x20, 0x00, 0xC6, 0x52, 0x6D,
       0x65, 0x43, 0x65, 0x43, 0x00, 0x00, 0x88, 0x6D, 0x65, 0x43, 0x02, 0x00,
-      sizeof(README_CONTENTS)-1, 0x00, 0x00, 0x00 // readme's files size (4 Bytes)
+      // sizeof(README_CONTENTS)-1, 0x00, 0x00, 0x00 // readme's files size (4 Bytes)
+      254, 0x00, 0x00, 0x00 // readme's files size (4 Bytes)
   },
 
-  //------------- Block3: Readme Content -------------//
-  README_CONTENTS
+  // //------------- Block3: Readme Content -------------//
+  // README_CONTENTS
 };
 
 // Invoked when received SCSI_CMD_INQUIRY
@@ -206,6 +209,34 @@ __attribute__((weak)) int32_t tud_msc_read10_cb(uint8_t lun, uint32_t lba, uint3
   // out of ramdisk
   if ( lba >= DISK_BLOCK_NUM )
   {
+    if (lba == DISK_BLOCK_NUM)
+    {
+      int len;
+      int index = 0;
+      firm_ver_t *p_tag = (firm_ver_t *)(FLASH_ADDR_FIRM + FLASH_SIZE_TAG + FLASH_SIZE_VEC);
+
+      len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "This is BARAM BOOT.\r\n\r\n\r\n");
+      index += len;
+      len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "NAME : %s\r\n", _DEF_BOARD_NAME);
+      index += len;
+      len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "VER  : %s\r\n", _DEF_FIRMWATRE_VERSION);
+      index += len;
+      len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "\r\n\r\n");
+      index += len;
+      if (p_tag->magic_number == VERSION_MAGIC_NUMBER)
+      {
+        len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "NAME : %s\r\n", p_tag->name_str);
+        index += len;
+        len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "VER  : %s\r\n", p_tag->version_str);
+      }
+      else
+      {
+        len = snprintf((char *)&readme_txt[index], sizeof(readme_txt), "No Firmware\r\n");
+      }
+
+      uint8_t const* addr = readme_txt;
+      memcpy(buffer, addr, bufsize);
+    }
     return (int32_t) bufsize;
   }
 
