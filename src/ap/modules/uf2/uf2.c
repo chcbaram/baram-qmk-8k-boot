@@ -38,6 +38,7 @@
 static uint32_t _flash_size;
 static uint16_t _flash_crc = 0;
 static uint32_t _flash_len = 0;
+static bool is_jump_fw = false;
 
 
 
@@ -72,8 +73,6 @@ void uf2_flash_flush(WriteState *state)
   {
     logPrintf("uf2_flash_flush() fail\n");
   }   
-
-  delay(500);
 }
 
 void uf2_flash_write(WriteState *state, uint32_t addr, void const *data, uint32_t len)
@@ -106,11 +105,14 @@ void uf2_flash_complete(WriteState *state)
 {
   uint16_t err_code;
 
+  if (is_jump_fw)
+    return;
+    
   err_code = bootUpdateFirm();
   logPrintf("[%s] bootUpdateFirm()\n", err_code==OK?"OK":"E_");
   if (err_code == OK)
   {
-    bootJumpFirm();
+    is_jump_fw = true;
   }
 }
 
@@ -134,7 +136,31 @@ void uf2Init(void)
   _flash_size = FLASH_SIZE_FIRM;
 }
 
+void uf2Update(void)
+{
+  static uint8_t state = 0;
+  static uint32_t pre_time;
 
+  switch(state)
+  {
+    case 0:
+      if (is_jump_fw)
+      {
+        is_jump_fw = false;
+        pre_time = millis();
+        state = 1;
+      }
+      break;
+
+    case 1:
+      if (millis()-pre_time >= 300)
+      {
+        bootJumpFirm();  
+        state = 0;
+      }
+      break;
+  }
+}
 
 
 /*------------------------------------------------------------------*/

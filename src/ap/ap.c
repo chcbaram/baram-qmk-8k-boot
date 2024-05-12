@@ -41,6 +41,7 @@ void apMain(void)
 
     cliUpdate();
     usbUpdate();
+    uf2Update();
   }
 }
 

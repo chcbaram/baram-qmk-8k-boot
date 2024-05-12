@@ -108,6 +108,7 @@ typedef struct
 } UF2_Block;
 
 void uf2Init(void);
+void uf2Update(void);
 
 int  uf2_write_block(uint32_t block_no, uint8_t *data, WriteState *state);
 void uf2_flash_complete(WriteState *state);
