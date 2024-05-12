@@ -38,21 +38,18 @@ static bool ejected = false;
 #define README_CONTENTS \
 "This is BARAM BOOT.\r\n\r\n" \
 "\r\n" \
-"NAME : " _DEF_BOARD_NAME \
+"NAME : " _DEF_BOARD_NAME "\r\n" \
 "VER  : " _DEF_FIRMWATRE_VERSION "\r\n" 
 
 
 
 enum
 {
-  DISK_BLOCK_NUM  = 16, // 8KB is the smallest size that windows allow to mount
+  DISK_BLOCK_NUM  = 32, 
   DISK_BLOCK_SIZE = 512
 };
 
-#ifdef CFG_EXAMPLE_MSC_READONLY
-const
-#endif
-uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE] =
+const uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE] =
 {
   //------------- Block0: Boot Sector -------------//
   // byte_per_sector    = DISK_BLOCK_SIZE; fat12_sector_num_16  = DISK_BLOCK_NUM;
@@ -65,7 +62,7 @@ uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE] =
   {
     //0     1     2     3     4     5     6     7     8     9     10    11    12    13    14    15 
       0xEB, 0x3C, 0x90, 0x4D, 0x53, 0x44, 0x4F, 0x53, 0x35, 0x2E, 0x30, 0x00, 0x02, 0x01, 0x01, 0x00,
-      0x01, 0x10, 0x00, 0x40, 0x0B, 0xF8, 0x09, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x01, 0x10, 0x00, 0x00, 0x20, 0xF8, 0x0F, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x29, 0x34, 0x12, 0x00, 0x00, 'B' , 'A' , 'R' , 'A' , 'M' ,
       ' ' , 'B' , 'O' , 'O' , 'T' , ' ' , 0x46, 0x41, 0x54, 0x31, 0x32, 0x20, 0x20, 0x20, 0x00, 0x00,
 
@@ -107,7 +104,20 @@ uint8_t msc_disk[DISK_BLOCK_NUM][DISK_BLOCK_SIZE] =
   {
       0xF8, 0xFF, 0xFF, 0xFF, 0x0F // // first 2 entries must be F8FF, third entry is cluster end of readme file
   },
-
+  {   0x00, }, // 2
+  {   0x00, }, // 3
+  {   0x00, }, // 4
+  {   0x00, }, // 5
+  {   0x00, }, // 6
+  {   0x00, }, // 7
+  {   0x00, }, // 8
+  {   0x00, }, // 9
+  {   0x00, }, // A
+  {   0x00, }, // B
+  {   0x00, }, // C
+  {   0x00, }, // D
+  {   0x00, }, // E
+  {   0x00, }, // F
   //------------- Block2: Root Directory -------------//
   {
       // first entry is volume label
@@ -222,6 +232,7 @@ __attribute__((weak)) int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint
 {
   (void) lun;
 
+#if 0
   // out of ramdisk
   if ( lba >= DISK_BLOCK_NUM ) return -1;
 
@@ -230,6 +241,7 @@ __attribute__((weak)) int32_t tud_msc_write10_cb(uint8_t lun, uint32_t lba, uint
   memcpy(addr, buffer, bufsize);
 #else
   (void) lba; (void) offset; (void) buffer;
+#endif
 #endif
 
   return (int32_t) bufsize;
