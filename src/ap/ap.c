@@ -76,8 +76,7 @@ void bootUp(void)
   {
     keysUpdate();
   }
-  if (keysGetPressed(0, 0) &&
-      keysGetPressed(3, 0))
+  if (keysGetPressed(0, 0))
   {
     is_run_fw = false;
   }
